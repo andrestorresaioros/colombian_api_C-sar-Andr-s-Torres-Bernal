@@ -172,38 +172,38 @@ async function fetchRegions() {
     }, {});
 }
 
-
 async function groupAirportsByRegionDepartmentCityType() {
-    // Obtener datos de departamentos y atracciones turísticas
+    // Obtener datos de regiones y aeropuertos
     const [regions, airports] = await Promise.all([
         fetchRegions(),
         fetchAirports()
     ]);
 
-    // Agrupar aeropuertos por departamento y ciudad
+    // Agrupar aeropuertos por región, departamento, ciudad y tipo
     const groupedByRegionDeptCityType = airports.reduce((acc, airport) => {
-        const department = airport.department?.name || 'Unknown department';
-        const city = airport.city?.name || 'Unknown City';
-        const type = airport.type || 'Unknown Type';
-        const regionId = airport.department?.regionId || 'Unknown RegionId';
-        const region = regions[regionId] || 'Unknown Region';
+        const department = airport.department?.name || 'unknown_department';
+        const city = airport.city?.name || 'unknown_city';
+        const type = airport.type || 'unknown_type';
+        const regionId = airport.department?.regionId || 'unknown_region';
+        const region = regions[regionId] || 'unknown_region';
 
-        // Crear una estructura con la etiqueta "departamento:" para el nombre del departamento
-        if (!acc[`region: ${region}`]) {
-            acc[`region: ${region}`] = {};
+        // Estructura de agrupación
+        if (!acc.region) {
+            acc.region = {};
         }
-        if (!acc[`region: ${region}`][`departamento: ${department}`]) {
-            acc[`region: ${region}`][`departamento: ${department}`] = {};
+        if (!acc.region[region]) {
+            acc.region[region] = { "departamento": {} };
         }
-        if (!acc[`region: ${region}`][`departamento: ${department}`][`ciudad: ${city}`]) {
-            acc[`region: ${region}`][`departamento: ${department}`] [`ciudad: ${city}`]= {
-                tipo:{}
-            };
+        if (!acc.region[region]["departamento"][department]) {
+            acc.region[region]["departamento"][department] = { "ciudad": {} };
         }
-        if (!acc[`region: ${region}`][`departamento: ${department}`][`ciudad: ${city}`].tipo[type]) {
-            acc[`region: ${region}`] [`departamento: ${department}`][`ciudad: ${city}`].tipo[type] = 0;
+        if (!acc.region[region]["departamento"][department]["ciudad"][city]) {
+            acc.region[region]["departamento"][department]["ciudad"][city] = { "tipo": {} };
         }
-        acc[`region: ${region}`] [`departamento: ${department}`][`ciudad: ${city}`].tipo[type] += 1;
+        if (!acc.region[region]["departamento"][department]["ciudad"][city]["tipo"][type]) {
+            acc.region[region]["departamento"][department]["ciudad"][city]["tipo"][type] = 0;
+        }
+        acc.region[region]["departamento"][department]["ciudad"][city]["tipo"][type] += 1;
         return acc;
     }, {});
 
@@ -211,7 +211,5 @@ async function groupAirportsByRegionDepartmentCityType() {
     console.log(JSON.stringify(groupedByRegionDeptCityType, null, 2));
     return groupedByRegionDeptCityType;
 }
-
-
 
 groupAirportsByRegionDepartmentCityType();
